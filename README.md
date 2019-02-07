@@ -1,15 +1,15 @@
 # Support Vector Classifier 
 
-This pretends to be an example of use for the sklearn.svm.SVC module using the famous abalone data set
+This pretends to be an example of use for the sklearn.svm.SVC module using the famous abalone data set,
 this data set contains 4177 rows, one per abalone with it's corresponding measures.
 
 We'll recreate a common practice in the study of wild life... taking a sample of few individuals, make
 measures on them and later, try on understand how the whole population in doing. For this reason and
 trying to be as realistic as possible, we define a sample size of just 5% of the total abalones, and 
 with the measure of length, whole_weight and sex (Male, Female, Infant) try to fit a model that predicts
-knowing the length and whole_weight the sex of the abalone with high precision (This may come super handy
-in real life if for example, determining the sex of a abalone is much more complicated and expensive than
-measure other variables)
+knowing the length and whole_weight the adulthood of the abalone with high precision (This may come super handy
+in real life, if for instance, determining the adulthood and sex of a abalone is much more complicated and 
+expensive than measure other variables)
 
 With this train data set we will train 4 models with distinct parameters in order to appreciate when a
 model is apparently underfitted overfitted or just ok... the model are:
