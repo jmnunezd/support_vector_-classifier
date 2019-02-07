@@ -1,16 +1,19 @@
 #%%
-from sklearn import svm
-import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from bokeh.plotting import figure, show
-import numpy as np
+import matplotlib.pyplot as plt
+from sklearn import svm
 import pandas as pd
+import numpy as np
 
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.max_rows', 600)
 pd.set_option('display.width', 1000)
 
+data_set_metadata = 'https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/'
 
+
+# Functions that may come handy on future
 def make_meshgrid(x, y, h=.02):
     """Create a mesh of points to plot in
 
@@ -48,49 +51,53 @@ def plot_contours(ax, clf, xx, yy, **params):
     return out
 
 
-data_set_metadata = 'https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/'
-
+# Import data
 df = pd.read_csv('abalone.csv')
 del df['Unnamed: 0']
 
+# Creating the label of our desire variable adult, and preparing the format of new features
 df['adult'] = df['sex'].apply(lambda sex: {'I': 0, 'M': 1, 'F': 1}.get(sex, ' '))
 df['feature'] = df.apply(lambda row: [row['length'], row['whole_weight']], axis=1)
 
+# Split the data in in sample and out sample
 train, test = train_test_split(df, test_size=0.95)
 
+# With this values we are going to train the models
 x = list(train['feature'])
 y = list(train['adult'])
 
-# the goal is to have a linear, a rbf underfited, a rbf overfitted and a rbf just fine.
+# models we want to compare
 models = (svm.SVC(kernel='linear', C=1),           # linear
-          svm.SVC(kernel='rbf', gamma=1, C=1),     # underfitting
-          svm.SVC(kernel='rbf', gamma=150, C=1),   # overfitting
-          svm.SVC(kernel='rbf', gamma=20, C=5))    # just fine
+          svm.SVC(kernel='rbf', gamma=1, C=1),     # expected to be underfitting
+          svm.SVC(kernel='rbf', gamma=150, C=1),   # expected to be overfitting
+          svm.SVC(kernel='rbf', gamma=20, C=5))    # expected to be just fine
+
 models = (clf.fit(x, y) for clf in models)
 
 # title for the plots
 titles = ('Linear C=1',
-          'rbf C=20',
-          'rbf gamma=20 and C=1',
-          'rbf gamma=20 and C=20')
+          'rbf gamma=1 C=1',
+          'rbf gamma=150 and C=1',
+          'rbf gamma=20 and C=5')
 
 
-# Set-up 2x2 grid for plotting.
+# Set-up 2x2 grid for plotting
 fig, sub = plt.subplots(2, 2)
 plt.subplots_adjust(wspace=0.4, hspace=0.4)
 
+# Preparing plot
 x0, x1 = train['length'], train['whole_weight']
 xx, yy = make_meshgrid(x0, x1)
 
 
-# bokeh plot for the train set.
+# Bokeh plot for inspection more lively the train set
 p = figure(plot_width=500, plot_height=500)
 p.circle(train[train['adult'] == 1]['length'], train[train['adult'] == 1]['whole_weight'], color='blue', alpha=0.3)
 p.asterisk(train[train['adult'] == 0]['length'], train[train['adult'] == 0]['whole_weight'], color='red', alpha=0.3)
 
 show(p)
 
-
+# For each model create it's respective contour graph
 for clf, title, ax in zip(models, titles, sub.flatten()):
     plot_contours(ax, clf, xx, yy, cmap=plt.cm.RdYlBu, alpha=0.8)
     ax.scatter(x0, x1, c=y, cmap=plt.cm.RdYlBu, s=20, edgecolors='k')
@@ -102,6 +109,7 @@ for clf, title, ax in zip(models, titles, sub.flatten()):
     ax.set_yticks(())
     ax.set_title(title)
 
+    # Using the model predict if the new featuresa are adults of not, then, print the result
     results = clf.predict(list(test['feature']))
     rdf = test.copy()
     rdf['prediction'] = np.array(results)
